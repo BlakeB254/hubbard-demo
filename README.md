@@ -1,5 +1,9 @@
 # Hubbard Inn Demo
 
+[![GitHub](https://img.shields.io/github/license/BlakeB254/hubbard-demo)](https://github.com/BlakeB254/hubbard-demo)
+[![CI](https://github.com/BlakeB254/hubbard-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/BlakeB254/hubbard-demo/actions/workflows/ci.yml)
+[![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-cc00ff.svg)](https://pnpm.io/)
+
 A comprehensive event management and ticketing platform with three distinct user portals (Admin, Customer, Promoter) built on a unified backend infrastructure.
 
 ## 🎯 Features
