@@ -1,0 +1,22 @@
+# Cloudflare Pages Configuration for Customer Portal
+name = "hubbard-inn-customer"
+compatibility_date = "2025-01-01"
+
+# Pages Configuration
+pages_build_output_dir = "out"
+
+[env.production]
+name = "hubbard-inn-customer"
+routes = [
+  { pattern = "tickets.hubbardinn.com", zone_name = "hubbardinn.com" },
+  { pattern = "www.hubbardinn.com", zone_name = "hubbardinn.com" }
+]
+
+[env.preview]
+name = "hubbard-inn-customer-preview"
+
+# Environment Variables (set via wrangler secret or dashboard)
+# NEXT_PUBLIC_STACK_PROJECT_ID
+# NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+# NEXT_PUBLIC_API_URL

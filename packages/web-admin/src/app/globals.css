@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/**
+ * Golden Ratio Design System
+ * Based on Fibonacci sequence approaching φ (1.618)
+ */
+@theme {
+  /* Golden Ratio Spacing Scale */
+  --spacing-phi-1: 8px;
+  --spacing-phi-2: 13px;
+  --spacing-phi-3: 21px;
+  --spacing-phi-4: 34px;
+  --spacing-phi-5: 55px;
+  --spacing-phi-6: 89px;
+  --spacing-phi-7: 144px;
+
+  /* Typography - Golden Ratio Scale */
+  --font-size-xs: 10px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 20px;
+  --font-size-lg: 26px;
+  --font-size-xl: 32px;
+  --font-size-2xl: 42px;
+  --font-size-3xl: 55px;
+
+  /* Line Heights - Golden Ratio */
+  --line-height-tight: 1.2;
+  --line-height-base: 1.618;
+  --line-height-relaxed: 2;
+
+  /* Colors - OKLCH for better perceptual uniformity */
+  --color-primary: oklch(0.55 0.22 264);
+  --color-primary-foreground: oklch(0.98 0.01 264);
+
+  --color-secondary: oklch(0.65 0.15 240);
+  --color-secondary-foreground: oklch(0.98 0.01 240);
+
+  --color-accent: oklch(0.75 0.18 180);
+  --color-accent-foreground: oklch(0.15 0.02 180);
+
+  --color-background: oklch(0.98 0.005 264);
+  --color-foreground: oklch(0.15 0.01 264);
+
+  --color-muted: oklch(0.92 0.01 264);
+  --color-muted-foreground: oklch(0.45 0.02 264);
+
+  --color-card: oklch(0.98 0.005 264);
+  --color-card-foreground: oklch(0.15 0.01 264);
+
+  --color-border: oklch(0.88 0.01 264);
+  --color-input: oklch(0.88 0.01 264);
+  --color-ring: oklch(0.55 0.22 264);
+
+  /* Destructive */
+  --color-destructive: oklch(0.55 0.22 25);
+  --color-destructive-foreground: oklch(0.98 0.01 25);
+
+  /* Border Radius - Golden Ratio */
+  --radius-sm: 0.382rem;
+  --radius-md: 0.618rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.618rem;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--line-height-tight);
+  font-weight: 600;
+}
+
+h1 { font-size: var(--font-size-3xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+h5 { font-size: var(--font-size-md); }
+h6 { font-size: var(--font-size-base); }

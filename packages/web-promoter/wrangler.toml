@@ -1,0 +1,20 @@
+# Cloudflare Pages Configuration for Promoter Portal
+name = "hubbard-inn-promoter"
+compatibility_date = "2025-01-01"
+
+# Pages Configuration
+pages_build_output_dir = "out"
+
+[env.production]
+name = "hubbard-inn-promoter"
+routes = [
+  { pattern = "promoters.hubbardinn.com", zone_name = "hubbardinn.com" }
+]
+
+[env.preview]
+name = "hubbard-inn-promoter-preview"
+
+# Environment Variables (set via wrangler secret or dashboard)
+# NEXT_PUBLIC_STACK_PROJECT_ID
+# NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+# NEXT_PUBLIC_API_URL
