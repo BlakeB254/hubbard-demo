@@ -1,52 +1,82 @@
 import { Request, Response, NextFunction } from 'express';
+import { eq } from 'drizzle-orm';
 import { AuthenticatedRequest, authenticateRequest } from './auth.js';
+import { db } from '../db/db.js';
+import { userProfiles } from '../db/schema/users.js';
 
 /**
  * Role-Based Access Control (RBAC) Middleware
  * Ensures user has required role(s) to access route
- *
- * TODO: Implement with Drizzle ORM and user_profiles table
  */
 
 export type UserRole = 'admin' | 'customer' | 'promoter';
 
+/**
+ * Middleware factory that creates a middleware requiring specific roles
+ * @param allowedRoles Array of roles that are allowed to access the route
+ */
 export const requireRole = (...allowedRoles: UserRole[]) => {
   return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     // First authenticate the user
     await authenticateRequest(req, res, () => {});
 
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({
+        error: 'UNAUTHORIZED',
+        message: 'Authentication required'
+      });
     }
 
     try {
-      // TODO: Fetch user role from database
-      // const userProfile = await db
-      //   .select()
-      //   .from(userProfiles)
-      //   .where(eq(userProfiles.userId, req.user.id))
-      //   .limit(1);
+      // Fetch user profile from database to get their role
+      const [userProfile] = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, req.user.id))
+        .limit(1);
 
-      // Placeholder until database is set up
-      console.warn('RBAC middleware not fully implemented - Database required');
+      // If no profile exists, user might not have completed onboarding
+      if (!userProfile) {
+        // Create a default customer profile for new users
+        const [newProfile] = await db
+          .insert(userProfiles)
+          .values({
+            userId: req.user.id,
+            role: 'customer',
+          })
+          .returning();
 
-      // For development, mock role based on user ID
-      // REMOVE THIS IN PRODUCTION
-      if (process.env.NODE_ENV === 'development') {
-        const mockRole: UserRole = 'admin'; // Change as needed for testing
+        req.user.role = newProfile.role;
 
-        if (!allowedRoles.includes(mockRole)) {
-          return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+        // Check if customer role is allowed
+        if (!allowedRoles.includes('customer')) {
+          return res.status(403).json({
+            error: 'FORBIDDEN',
+            message: 'Insufficient permissions to access this resource'
+          });
         }
 
-        req.user.role = mockRole;
         return next();
       }
 
-      return res.status(500).json({ error: 'RBAC not configured' });
+      // Check if user's role is in the allowed roles
+      if (!allowedRoles.includes(userProfile.role)) {
+        return res.status(403).json({
+          error: 'FORBIDDEN',
+          message: `This resource requires one of the following roles: ${allowedRoles.join(', ')}`
+        });
+      }
+
+      // Attach role to request user object
+      req.user.role = userProfile.role;
+
+      next();
     } catch (error) {
       console.error('RBAC error:', error);
-      return res.status(500).json({ error: 'Authorization check failed' });
+      return res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to verify user permissions'
+      });
     }
   };
 };

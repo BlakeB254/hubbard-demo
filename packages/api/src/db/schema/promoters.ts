@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, integer, boolean } from 'drizzle-orm/pg-core';
-import { events } from './events.js';
-import { userProfiles } from './users.js';
+import { events } from './events';
+import { userProfiles } from './users';
 
 /**
  * Promoter Links Table

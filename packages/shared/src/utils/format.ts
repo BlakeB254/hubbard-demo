@@ -40,3 +40,27 @@ export function formatTime(time: string): string {
   const displayHours = hours % 12 || 12;
   return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 }
+
+/**
+ * Format currency to short form (e.g., $1.5k for $1,500)
+ * @param cents - Amount in cents
+ * @returns Formatted currency string with k suffix if >= 1000
+ */
+export function formatCurrencyShort(cents: number): string {
+  const dollars = cents / 100;
+  if (dollars >= 1000) {
+    return `$${(dollars / 1000).toFixed(1)}k`;
+  }
+  return formatCurrency(cents);
+}
+
+/**
+ * Parse currency string to cents
+ * @param value - Currency string (e.g., "$20.00" or "20")
+ * @returns Amount in cents
+ */
+export function parseCurrency(value: string): number {
+  // Remove $ and commas, convert to cents
+  const cleaned = value.replace(/[$,]/g, '');
+  return Math.round(parseFloat(cleaned) * 100);
+}

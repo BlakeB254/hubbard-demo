@@ -3,22 +3,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is not set');
-}
+// Make Stripe optional for development
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+const isStripeConfigured = process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'your_stripe_secret_key';
 
 /**
  * Stripe Service
  * Handles all Stripe payment operations
  */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
-});
+const stripe = isStripeConfigured
+  ? new Stripe(stripeSecretKey, {
+      apiVersion: '2024-12-18.acacia',
+    })
+  : null;
 
 /**
  * Create Payment Intent for Ticket Purchase
  */
-export const createTicketPaymentIntent = async (
+const createTicketPaymentIntent = async (
   amount: number,
   metadata: {
     eventId: string;
@@ -27,6 +29,9 @@ export const createTicketPaymentIntent = async (
     ticketCount: number;
   }
 ): Promise<Stripe.PaymentIntent> => {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   return await stripe.paymentIntents.create({
     amount: Math.round(amount * 100), // Convert to cents
     currency: 'usd',
@@ -38,7 +43,7 @@ export const createTicketPaymentIntent = async (
 /**
  * Create Payment Intent for Section Deposit
  */
-export const createDepositPaymentIntent = async (
+const createDepositPaymentIntent = async (
   totalAmount: number,
   depositAmount: number,
   metadata: {
@@ -48,6 +53,9 @@ export const createDepositPaymentIntent = async (
     reservationId: string;
   }
 ): Promise<Stripe.PaymentIntent> => {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   return await stripe.paymentIntents.create({
     amount: Math.round(depositAmount * 100), // Deposit in cents
     currency: 'usd',
@@ -66,7 +74,7 @@ export const createDepositPaymentIntent = async (
 /**
  * Create Payment Intent for Balance Payment
  */
-export const createBalancePaymentIntent = async (
+const createBalancePaymentIntent = async (
   balanceAmount: number,
   customerId: string,
   paymentMethodId: string,
@@ -76,6 +84,9 @@ export const createBalancePaymentIntent = async (
     reservationId: string;
   }
 ): Promise<Stripe.PaymentIntent> => {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   return await stripe.paymentIntents.create({
     amount: Math.round(balanceAmount * 100),
     currency: 'usd',
@@ -93,10 +104,13 @@ export const createBalancePaymentIntent = async (
 /**
  * Verify Webhook Signature
  */
-export const constructWebhookEvent = (
+const constructWebhookEvent = (
   payload: string | Buffer,
   signature: string
 ): Stripe.Event => {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
@@ -109,12 +123,28 @@ export const constructWebhookEvent = (
 /**
  * Refund Payment
  */
-export const refundPayment = async (
+const refundPayment = async (
   paymentIntentId: string,
   reason?: Stripe.RefundCreateParams.Reason
 ): Promise<Stripe.Refund> => {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   return await stripe.refunds.create({
     payment_intent: paymentIntentId,
     reason: reason || 'requested_by_customer',
   });
 };
+
+// Export service object for imports like: import { stripeService } from './stripe'
+export const stripeService = {
+  stripe,
+  createTicketPaymentIntent,
+  createDepositPaymentIntent,
+  createBalancePaymentIntent,
+  constructWebhookEvent,
+  refundPayment,
+};
+
+// Also export individual functions for convenience
+export { stripe, createTicketPaymentIntent, createDepositPaymentIntent, createBalancePaymentIntent, constructWebhookEvent, refundPayment };

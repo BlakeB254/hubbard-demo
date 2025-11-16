@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, uuid, integer, boolean, pgEnum } from 'drizzle-orm/pg-core';
-import { events } from './events.js';
-import { userProfiles } from './users.js';
+import { events } from './events';
+import { userProfiles } from './users';
+import { guestOrders } from './guest-orders';
 
 /**
  * Purchase Type Enum
@@ -28,7 +29,8 @@ export const tickets = pgTable('tickets', {
   eventId: uuid('event_id')
     .notNull()
     .references(() => events.id, { onDelete: 'cascade' }),
-  customerId: text('customer_id').notNull(), // Stack Auth user ID
+  customerId: text('customer_id'), // Stack Auth user ID (null for guest purchases)
+  guestOrderId: uuid('guest_order_id').references(() => guestOrders.id, { onDelete: 'set null' }), // For guest purchases
   promoterId: text('promoter_id'), // Nullable - only if purchased via affiliate link
 
   // Purchase Information

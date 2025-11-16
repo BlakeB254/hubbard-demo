@@ -25,3 +25,17 @@ export interface ApiError {
   message?: string;
   statusCode: number;
 }
+
+export interface ApiResponseWithPagination<T = any> extends ApiResponse<T> {
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
+export interface ApiValidationError extends ApiError {
+  field: string;
+  value?: any;
+}

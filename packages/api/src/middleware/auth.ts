@@ -1,20 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
+import { stackServerApp } from '../config/stack.js';
 
 /**
  * Authentication Middleware
  * Validates Stack Auth tokens and attaches user to request
- *
- * TODO: Implement Stack Auth integration
  */
 
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;
+    displayName?: string;
     role?: string;
   };
 }
 
+/**
+ * Middleware to authenticate requests using Stack Auth
+ * Extracts the Bearer token and validates it with Stack Auth
+ */
 export const authenticateRequest = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -24,28 +28,73 @@ export const authenticateRequest = async (
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
-      return res.status(401).json({ error: 'No authentication token provided' });
+      return res.status(401).json({
+        error: 'UNAUTHORIZED',
+        message: 'No authentication token provided'
+      });
     }
 
-    // TODO: Verify token with Stack Auth
-    // const user = await stackServerApp.getUser({ accessToken: token });
+    // Verify token with Stack Auth
+    const stackUser = await stackServerApp.getUser({ accessToken: token });
 
-    // Placeholder until Stack Auth is configured
-    console.warn('Authentication middleware not fully implemented - Stack Auth required');
+    if (!stackUser) {
+      return res.status(401).json({
+        error: 'UNAUTHORIZED',
+        message: 'Invalid authentication token'
+      });
+    }
 
-    // For development, you can temporarily mock the user
-    // REMOVE THIS IN PRODUCTION
-    if (process.env.NODE_ENV === 'development') {
-      req.user = {
-        id: 'dev-user-123',
-        email: 'dev@example.com',
-      };
+    // Attach user to request
+    req.user = {
+      id: stackUser.id,
+      email: stackUser.primaryEmail || '',
+      displayName: stackUser.displayName || undefined,
+    };
+
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return res.status(401).json({
+      error: 'UNAUTHORIZED',
+      message: 'Invalid or expired authentication token'
+    });
+  }
+};
+
+/**
+ * Optional authentication middleware
+ * Attempts to authenticate but allows the request to proceed even if no token is provided
+ */
+export const optionalAuth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    if (!token) {
+      // No token provided, continue without authentication
       return next();
     }
 
-    return res.status(401).json({ error: 'Authentication not configured' });
+    // Try to verify token with Stack Auth
+    const stackUser = await stackServerApp.getUser({ accessToken: token });
+
+    if (stackUser) {
+      // Attach user to request if token is valid
+      req.user = {
+        id: stackUser.id,
+        email: stackUser.primaryEmail || '',
+        displayName: stackUser.displayName || undefined,
+      };
+    }
+
+    next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    return res.status(401).json({ error: 'Invalid authentication token' });
+    // If there's an error, just continue without authentication
+    // This is optional auth, so we don't fail the request
+    console.warn('Optional auth failed:', error);
+    next();
   }
 };

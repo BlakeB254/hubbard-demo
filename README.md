@@ -70,7 +70,34 @@ hubbard-inn-demo/
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### ⚡ Automated Setup (Recommended)
+
+**One-Command Startup:**
+
+```bash
+./start.sh
+```
+
+This automated script will:
+- ✓ Check Node.js and pnpm versions
+- ✓ Verify environment files exist
+- ✓ Install all dependencies (`pnpm install`)
+- ✓ Generate and run database migrations
+- ✓ Start all 4 services concurrently
+
+**Services will be available at:**
+- 🎫 **Customer Portal**: http://localhost:3001
+- 👔 **Admin Portal**: http://localhost:3000
+- 📊 **Promoter Portal**: http://localhost:3002
+- 🔌 **API Server**: http://localhost:4000
+
+---
+
+### 📋 Manual Setup (Advanced)
+
+If you prefer step-by-step control or encounter issues with the automated script:
+
+#### Prerequisites
 
 - **Node.js** 20+ installed
 - **pnpm** 9+ installed (`npm install -g pnpm`)
@@ -78,7 +105,7 @@ hubbard-inn-demo/
 - **Stack Auth** (Neon Auth) project
 - **Stripe** account (test mode for development)
 
-### 1. Clone and Install
+#### 1. Clone and Install
 
 ```bash
 # Clone the repository
@@ -89,9 +116,9 @@ cd hubbard-inn-demo
 pnpm install
 ```
 
-### 2. Configure Environment Variables
+#### 2. Configure Environment Variables
 
-#### Root `.env`
+##### Root `.env`
 
 Create `.env` in the root directory:
 
@@ -113,7 +140,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 NEXT_PUBLIC_API_URL="http://localhost:4000"
 ```
 
-#### Individual Package `.env` Files
+##### Individual Package `.env` Files
 
 Each package has an `.env.example` file. Copy and configure:
 
@@ -124,15 +151,15 @@ cp packages/web-customer/.env.example packages/web-customer/.env
 cp packages/web-promoter/.env.example packages/web-promoter/.env
 ```
 
-### 3. Set Up Neon Database
+#### 3. Set Up Neon Database
 
-#### Create Neon Project
+##### Create Neon Project
 
 1. Go to [Neon Console](https://console.neon.tech/)
 2. Create new project: "hubbard-inn-demo"
 3. Copy connection string to `DATABASE_URL` in `.env`
 
-#### Run Migrations
+##### Run Migrations
 
 ```bash
 # Generate migration files from schemas
@@ -145,9 +172,9 @@ pnpm db:migrate
 pnpm db:studio
 ```
 
-### 4. Configure Stack Auth (Neon Auth)
+#### 4. Configure Stack Auth (Neon Auth)
 
-#### Enable Neon Auth
+##### Enable Neon Auth
 
 1. In Neon Console → Navigate to "Auth" tab
 2. Click "Enable Neon Auth"
@@ -156,7 +183,7 @@ pnpm db:studio
    - `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY`
    - `STACK_SECRET_SERVER_KEY`
 
-#### Initialize Stack Auth in Portals
+##### Initialize Stack Auth in Portals
 
 ```bash
 # Admin Portal
@@ -172,9 +199,9 @@ cd packages/web-promoter
 npx @stackframe/init-stack . --no-browser
 ```
 
-### 5. Start Development Servers
+#### 5. Start Development Servers
 
-#### Option 1: Run All Services Concurrently
+##### Option 1: Run All Services Concurrently
 
 ```bash
 # From root directory
@@ -187,7 +214,7 @@ This starts:
 - **Customer Portal**: http://localhost:3001
 - **Promoter Portal**: http://localhost:3002
 
-#### Option 2: Run Services Individually
+##### Option 2: Run Services Individually
 
 ```bash
 # Terminal 1: API Server
@@ -427,13 +454,6 @@ Use test credit cards:
 - [Stack Auth](https://docs.stack-auth.com)
 - [Stripe API](https://stripe.com/docs/api)
 - [Tailwind CSS 4](https://tailwindcss.com/docs)
-
-### Package Docs
-
-- [`packages/api/README.md`](./packages/api/README.md) - Backend API
-- [`packages/web-admin/README.md`](./packages/web-admin/README.md) - Admin Portal
-- [`packages/web-customer/README.md`](./packages/web-customer/README.md) - Customer Portal
-- [`packages/web-promoter/README.md`](./packages/web-promoter/README.md) - Promoter Portal
 
 ---
 

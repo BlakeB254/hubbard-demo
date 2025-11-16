@@ -2,10 +2,12 @@
  * Central export for all shared types
  */
 
-export * from './events.js';
-export * from './tickets.js';
-export * from './users.js';
-export * from './sections.js';
-export * from './promoters.js';
-export * from './payments.js';
-export * from './api.js';
+export * from './events';
+export * from './tickets';
+export * from './users';
+export * from './sections';
+export * from './promoters';
+export * from './payments';
+export * from './api';
+export * from './filters';
+export * from './guests';

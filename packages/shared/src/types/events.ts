@@ -16,6 +16,8 @@ export interface Event {
   venueId: string;
   floorNumber: FloorNumber;
   totalCapacity: number;
+  capacity?: number; // Alias for totalCapacity (for compatibility)
+  ticketsSold?: number; // Number of tickets sold (optional, computed)
   ageRestriction: AgeRestriction;
   coverPrice: number; // In cents
   presaleEnabled: boolean;

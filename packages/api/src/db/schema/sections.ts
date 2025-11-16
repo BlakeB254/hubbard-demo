@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, uuid, integer, boolean, pgEnum, jsonb } from 'drizzle-orm/pg-core';
-import { events } from './events.js';
+import { events } from './events';
+import { guestOrders } from './guest-orders';
 
 /**
  * Section Status Enum
@@ -63,7 +64,13 @@ export const sectionReservations = pgTable('section_reservations', {
   sectionId: uuid('section_id')
     .notNull()
     .references(() => sections.id, { onDelete: 'cascade' }),
-  customerId: text('customer_id').notNull(), // Stack Auth user ID
+  customerId: text('customer_id'), // Stack Auth user ID (null for guest purchases)
+  guestOrderId: uuid('guest_order_id').references(() => guestOrders.id, { onDelete: 'set null' }), // For guest purchases
+
+  // Guest Information (for guest reservations)
+  guestEmail: text('guest_email'),
+  guestName: text('guest_name'),
+  guestPhone: text('guest_phone'),
 
   // Bottle Selection
   bottlesSelected: jsonb('bottles_selected').notNull(), // Array of { name: string, price: number, quantity: number }

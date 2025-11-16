@@ -75,3 +75,20 @@ tmp/
 # Misc
 *.pem
 .pnpm-store/
+
+# Documentation (temporary/generated)
+QUICK_START.md
+DEPLOYMENT.md
+STACK_AUTH_SETUP.md
+GUEST_CHECKOUT.md
+SETUP_GUIDE.md
+IMPLEMENTATION_SUMMARY.md
+MIGRATION_SETUP_COMPLETE.md
+SETUP.md
+ICONS_README.md
+**/SETUP_GUIDE.md
+**/IMPLEMENTATION_SUMMARY.md
+**/MIGRATION_SETUP_COMPLETE.md
+
+# Drizzle Config (contains sensitive database info)
+drizzle.config.ts

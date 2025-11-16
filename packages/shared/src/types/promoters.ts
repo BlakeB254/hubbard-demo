@@ -7,10 +7,12 @@ export interface PromoterLink {
   promoterId: string;
   eventId: string;
   uniqueCode: string;
+  url: string; // Full URL to the affiliate link
   customUrl?: string;
   clicks: number;
   conversions: number;
   revenueGenerated: number; // In cents
+  commission?: number; // Commission earned in cents (optional, computed)
   isActive: boolean;
   expiresAt?: Date | string;
   createdAt: Date | string;
@@ -54,4 +56,27 @@ export interface LinkPerformance {
   revenue: number;
   commission: number;
   conversionRate: number;
+}
+
+export interface EarningsHistoryItem {
+  id: string;
+  date: Date | string;
+  eventTitle: string;
+  ticketsSold: number;
+  revenue: number; // In cents
+  commission: number; // In cents
+  status: 'paid' | 'pending';
+}
+
+export interface MonthlyEarningsData {
+  month: string;
+  earnings: number; // In cents
+}
+
+export interface EarningsData {
+  totalEarnings: number; // In cents
+  currentMonth: number; // In cents
+  pending: number; // In cents
+  monthlyEarnings: MonthlyEarningsData[];
+  history: EarningsHistoryItem[];
 }

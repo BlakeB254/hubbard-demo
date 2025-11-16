@@ -4,16 +4,19 @@
  */
 
 // User schemas
-export * from './users.js';
+export * from './users';
 
 // Event schemas
-export * from './events.js';
+export * from './events';
 
 // Ticket schemas
-export * from './tickets.js';
+export * from './tickets';
+
+// Guest order schemas
+export * from './guest-orders';
 
 // Section & Bottle Service schemas
-export * from './sections.js';
+export * from './sections';
 
 // Promoter & Analytics schemas
-export * from './promoters.js';
+export * from './promoters';
