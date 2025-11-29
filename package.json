@@ -3,18 +3,16 @@
   "version": "2.0.0",
   "private": true,
   "description": "Event management platform rebuilt with Next.js 16 best practices",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "pnpm --filter @hubbard-inn/web dev",
-    "dev:web": "pnpm --filter @hubbard-inn/web dev",
-    "dev:api": "pnpm --filter api dev",
-    "dev:all": "pnpm -r --parallel dev",
-    "build": "pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web build",
-    "build:web": "pnpm --filter @hubbard-inn/web build",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "dev": "npm run dev --workspace=@hubbard-inn/web",
+    "dev:web": "npm run dev --workspace=@hubbard-inn/web",
+    "build": "npm run build --workspace=@hubbard-inn/web",
+    "build:web": "npm run build --workspace=@hubbard-inn/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "keywords": [
     "event-management",
@@ -29,12 +27,9 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "concurrently": "^9.1.0",
-    "drizzle-kit": "^0.31.5",
     "typescript": "^5.7.0"
   },
-  "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20.9.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=20.9.0"
   }
 }

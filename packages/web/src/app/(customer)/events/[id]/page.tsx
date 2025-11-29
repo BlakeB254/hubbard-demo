@@ -1,13 +1,18 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getEventById } from '@/lib/api';
+import { getEventById, getAllEvents } from '@/lib/api';
 import { EventDetails } from '@/components/customer/organisms/EventDetails';
 import { TicketPurchase } from '@/components/customer/organisms/TicketPurchase';
 import { Skeleton } from '@hubbard-inn/shared/components';
 
 interface EventPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateStaticParams() {
+  const events = await getAllEvents();
+  return events.map((event) => ({ id: event.id }));
 }
 
 export async function generateMetadata({

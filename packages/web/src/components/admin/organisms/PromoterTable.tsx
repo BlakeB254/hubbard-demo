@@ -1,11 +1,18 @@
-import type { UserProfile } from '@hubbard-inn/shared/types';
 import { Badge, Button, Card, CardContent, Skeleton } from '@hubbard-inn/shared/components';
-import { formatPrice, formatDate } from '@hubbard-inn/shared/utils';
-import { PROMOTER_STATUSES } from '@hubbard-inn/shared/lib';
+import { formatPrice } from '@hubbard-inn/shared/utils';
 import { Check, X } from 'lucide-react';
 
+interface Promoter {
+  id: string;
+  name: string;
+  email: string;
+  tier: string;
+  totalEarnings: number;
+  activeLinks: number;
+}
+
 interface PromoterTableProps {
-  promoters: UserProfile[];
+  promoters: Promoter[];
 }
 
 export function PromoterTable({ promoters }: PromoterTableProps) {
@@ -26,16 +33,19 @@ export function PromoterTable({ promoters }: PromoterTableProps) {
           <thead className="border-b border-border bg-muted/50">
             <tr className="text-left text-sm text-muted-foreground">
               <th className="p-phi-3 font-medium">Promoter</th>
-              <th className="p-phi-3 font-medium">Joined</th>
-              <th className="p-phi-3 font-medium">Commission</th>
+              <th className="p-phi-3 font-medium">Tier</th>
+              <th className="p-phi-3 font-medium">Active Links</th>
               <th className="p-phi-3 font-medium">Earnings</th>
-              <th className="p-phi-3 font-medium">Status</th>
               <th className="p-phi-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {promoters.map((promoter) => {
-              const statusInfo = PROMOTER_STATUSES[promoter.promoterStatus || 'pending'];
+              const tierColors: Record<string, 'default' | 'secondary' | 'accent' | 'success'> = {
+                bronze: 'secondary',
+                silver: 'default',
+                gold: 'accent',
+              };
 
               return (
                 <tr key={promoter.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
@@ -45,31 +55,26 @@ export function PromoterTable({ promoters }: PromoterTableProps) {
                       <span className="text-sm text-muted-foreground">{promoter.email}</span>
                     </div>
                   </td>
-                  <td className="p-phi-3 text-muted-foreground">
-                    {formatDate(promoter.createdAt)}
-                  </td>
                   <td className="p-phi-3">
-                    {promoter.commissionRate || 10}%
-                  </td>
-                  <td className="p-phi-3 font-medium">
-                    {formatPrice((promoter.totalEarnings || 0) * 100)}
-                  </td>
-                  <td className="p-phi-3">
-                    <Badge variant={statusInfo.color as 'default' | 'secondary' | 'destructive' | 'accent' | 'success' | 'muted'}>
-                      {statusInfo.label}
+                    <Badge variant={tierColors[promoter.tier] || 'default'}>
+                      {promoter.tier.charAt(0).toUpperCase() + promoter.tier.slice(1)}
                     </Badge>
                   </td>
+                  <td className="p-phi-3 text-muted-foreground">
+                    {promoter.activeLinks}
+                  </td>
+                  <td className="p-phi-3 font-medium">
+                    {formatPrice(promoter.totalEarnings * 100)}
+                  </td>
                   <td className="p-phi-3">
-                    {promoter.promoterStatus === 'pending' && (
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="text-success">
-                          <Check className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive">
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="text-success">
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-destructive">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );

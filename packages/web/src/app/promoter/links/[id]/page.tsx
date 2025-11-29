@@ -2,10 +2,15 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { LinkAnalytics, LinkAnalyticsSkeleton } from '@/components/promoter/organisms/LinkAnalytics';
-import { getLinkById } from '@/lib/api';
+import { getLinkById, getPromoterLinks } from '@/lib/api';
 
 interface LinkPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateStaticParams() {
+  const links = await getPromoterLinks();
+  return links.map((link) => ({ id: link.id }));
 }
 
 export async function generateMetadata({ params }: LinkPageProps): Promise<Metadata> {

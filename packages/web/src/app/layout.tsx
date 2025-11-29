@@ -1,20 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Prata, Montserrat } from 'next/font/google';
 import '@hubbard-inn/shared/styles';
-
-// Next.js 16: Optimize fonts at build time
-const prata = Prata({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-heading',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-body',
-});
 
 // Next.js 16: Metadata API for SEO
 export const metadata: Metadata = {
@@ -65,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${prata.variable} ${montserrat.variable}`}>
+    <html lang="en">
       <body className="antialiased min-h-screen bg-background text-foreground">
         {children}
       </body>

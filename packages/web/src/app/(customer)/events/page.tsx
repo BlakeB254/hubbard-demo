@@ -1,25 +1,14 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { EventGrid, EventGridSkeleton } from '@/components/customer/organisms/EventGrid';
-import { EventFilters } from '@/components/customer/molecules/EventFilters';
 import { getAllEvents } from '@/lib/api';
-import type { EventFloor } from '@hubbard-inn/shared/types';
 
 export const metadata: Metadata = {
   title: 'Events',
   description: 'Browse all upcoming events at Hubbard Inn',
 };
 
-interface EventsPageProps {
-  searchParams: Promise<{
-    floor?: EventFloor;
-    search?: string;
-  }>;
-}
-
-export default async function EventsPage({ searchParams }: EventsPageProps) {
-  const params = await searchParams;
-
+export default async function EventsPage() {
   return (
     <main className="min-h-screen pb-20 md:pb-0">
       {/* Header */}
@@ -34,40 +23,23 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
         </div>
       </section>
 
-      {/* Filters and Events */}
+      {/* Events */}
       <section className="max-w-7xl mx-auto px-phi-4 py-phi-5">
-        <EventFilters currentFloor={params.floor} />
-
-        <div className="mt-phi-5">
-          <Suspense
-            key={`${params.floor}-${params.search}`}
-            fallback={<EventGridSkeleton count={9} />}
-          >
-            <EventsList floor={params.floor} search={params.search} />
-          </Suspense>
-        </div>
+        <Suspense fallback={<EventGridSkeleton count={9} />}>
+          <EventsList />
+        </Suspense>
       </section>
     </main>
   );
 }
 
-async function EventsList({
-  floor,
-  search,
-}: {
-  floor?: EventFloor;
-  search?: string;
-}) {
-  const events = await getAllEvents({ floor, search });
+async function EventsList() {
+  const events = await getAllEvents();
 
   return (
     <EventGrid
       events={events}
-      emptyMessage={
-        floor || search
-          ? 'No events match your filters. Try adjusting your search.'
-          : 'No upcoming events at this time.'
-      }
+      emptyMessage="No upcoming events at this time."
     />
   );
 }
