@@ -12,7 +12,7 @@ A comprehensive event management and ticketing platform rebuilt with **Next.js 1
 - **Next.js 16** with Turbopack (stable) for 2-5x faster builds
 - **Server Components** by default with proper `'use client'` boundaries
 - **Streaming with Suspense** for instant navigation
-- **Partial Pre-Rendering (PPR)** for optimal performance
+- **Static Export** configured for Cloudflare Pages deployment
 - **Async params/searchParams** following Next.js 16 patterns
 - **next/font optimization** with Google Fonts (Prata + Montserrat)
 - **Metadata API** for comprehensive SEO
@@ -357,24 +357,83 @@ See `packages/api/README.md` for full API documentation.
 
 ## 🚢 Deployment
 
-### Cloudflare Pages (Frontend)
+### Cloudflare Pages (Frontend - Static Export)
 
-Each portal deploys independently:
+This project is configured for **Next.js Static HTML Export** to deploy on Cloudflare Pages.
 
-```bash
-# Build all portals
-pnpm build
+#### Prerequisites
 
-# Deploy individually
-pnpm deploy:admin
-pnpm deploy:customer
-pnpm deploy:promoter
+- Cloudflare account
+- Git repository connected to Cloudflare
+
+#### Build Configuration
+
+Each portal uses these settings in `next.config.ts`:
+
+```typescript
+{
+  output: 'export',        // Static HTML export
+  distDir: 'out',          // Output directory
+  trailingSlash: true,     // Required for static hosting
+  images: { unoptimized: true }  // No Image Optimization API
+}
 ```
+
+#### Cloudflare Pages Setup - Values to Enter
+
+**For each portal (Admin, Customer, Promoter), create a separate Cloudflare Pages project:**
+
+| Setting | Value |
+|---------|-------|
+| **Framework preset** | `Next.js (Static HTML Export)` |
+| **Build command** | See below for each portal |
+| **Build output directory** | `packages/web-{portal}/out` |
+| **Root directory** | `/` (repository root) |
+| **Node.js version** | `20` (set in Environment Variables) |
+
+**Build Commands:**
+
+| Portal | Build Command |
+|--------|---------------|
+| Admin | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web-admin build` |
+| Customer | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web-customer build` |
+| Promoter | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web-promoter build` |
+
+**Environment Variables (set in Cloudflare dashboard):**
+
+| Variable | Value |
+|----------|-------|
+| `NODE_VERSION` | `20` |
+| `NEXT_PUBLIC_API_URL` | `https://api.hubbardinn.com` |
+
+#### Step-by-Step Cloudflare Deployment
+
+1. **Go to Cloudflare Dashboard** → Pages → Create a project
+2. **Connect to Git** → Select your repository
+3. **Configure build settings:**
+   - Framework preset: `Next.js (Static HTML Export)`
+   - Build command: (use table above)
+   - Build output directory: `packages/web-admin/out` (or customer/promoter)
+   - Root directory: `/`
+4. **Add environment variables** (NODE_VERSION, NEXT_PUBLIC_API_URL)
+5. **Deploy** → Wait for build to complete
+6. **Set custom domain** (optional)
 
 **Configured Domains**:
 - Admin: `admin.hubbardinn.com`
 - Customer: `www.hubbardinn.com`
 - Promoter: `promoters.hubbardinn.com`
+
+#### Local Build Test
+
+```bash
+# Build all portals locally
+pnpm build
+
+# Each portal outputs to packages/web-{portal}/out/
+# You can serve locally with:
+npx serve packages/web-customer/out
+```
 
 ### Backend API
 
@@ -510,6 +569,37 @@ rm -rf packages/web-*/.next
 # Rebuild
 pnpm build
 ```
+
+---
+
+## 🔐 Demo Credentials
+
+Each portal has a login page with "Use Credentials" buttons for easy testing. All demo accounts use the password: `demo123`
+
+### Customer Portal (`/login`)
+
+| Role | Email | Access |
+|------|-------|--------|
+| Customer | `customer@demo.hubbardinn.com` | Regular user access |
+| VIP Guest | `vip@demo.hubbardinn.com` | Premium access |
+
+### Admin Portal (`/login`)
+
+| Role | Email | Access |
+|------|-------|--------|
+| Admin | `admin@demo.hubbardinn.com` | Full access |
+| Manager | `manager@demo.hubbardinn.com` | Events only |
+| Check-In Staff | `checkin@demo.hubbardinn.com` | Check-in only |
+
+### Promoter Portal (`/login`)
+
+| Tier | Email | Earnings |
+|------|-------|----------|
+| New (Starter) | `newpromoter@demo.hubbardinn.com` | $0 |
+| Silver | `promoter@demo.hubbardinn.com` | $2,500 |
+| Gold | `toppromoter@demo.hubbardinn.com` | $15,000 |
+
+**Note:** Click the credential buttons on each login page to auto-fill the form fields.
 
 ---
 

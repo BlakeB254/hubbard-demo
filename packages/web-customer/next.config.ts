@@ -4,10 +4,15 @@ const nextConfig: NextConfig = {
   // Next.js 16 configuration
   reactStrictMode: true,
 
+  // Static export for Cloudflare Pages
+  output: 'export',
+  distDir: 'out',
+
+  // Trailing slashes for static hosting
+  trailingSlash: true,
+
   // Enable experimental features
   experimental: {
-    // Enable Partial Pre-Rendering (PPR) for instant navigation
-    ppr: true,
     // Optimize package imports
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
   },
@@ -15,19 +20,14 @@ const nextConfig: NextConfig = {
   // Transpile shared package
   transpilePackages: ['@hubbard-inn/shared'],
 
-  // Image configuration
+  // Image configuration - unoptimized for static export
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
+    unoptimized: true,
   },
 
   // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.hubbardinn.com',
   },
 };
 
