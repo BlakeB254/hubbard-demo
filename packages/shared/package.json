@@ -14,6 +14,7 @@
     "./styles": "./src/styles/globals.css"
   },
   "scripts": {
+    "build": "echo 'Shared package ready'",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },
