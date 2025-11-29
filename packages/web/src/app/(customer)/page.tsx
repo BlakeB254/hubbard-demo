@@ -2,19 +2,24 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@hubbard-inn/shared/components';
 import { Hero } from '@/components/customer/organisms/Hero';
+import { PortalsSection } from '@/components/customer/organisms/PortalsSection';
 import { FeaturesSection } from '@/components/customer/organisms/FeaturesSection';
 import { EventGrid, EventGridSkeleton } from '@/components/customer/organisms/EventGrid';
 import { NewsletterSection } from '@/components/customer/organisms/NewsletterSection';
 import { getUpcomingEvents } from '@/lib/api';
 
 /**
- * Customer Home Page - Server Component
+ * Landing Page - Server Component
+ * Explains the SaaS platform and links to all portals
  */
 export default async function HomePage() {
   return (
     <main className="min-h-screen pb-20 md:pb-0">
       {/* Hero Section */}
       <Hero />
+
+      {/* Portals Section - Links to all three portals */}
+      <PortalsSection />
 
       {/* Upcoming Events Section */}
       <section className="max-w-7xl mx-auto px-phi-4 py-phi-7">
