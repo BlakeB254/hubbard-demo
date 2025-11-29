@@ -1,97 +1,95 @@
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { Badge, Button } from '@hubbard-inn/shared';
-import { PriceTag } from '../atoms/PriceTag';
-import { Calendar, MapPin, Users } from 'lucide-react';
 import type { Event } from '@hubbard-inn/shared/types';
+import { Badge, Button, Card, CardContent } from '@hubbard-inn/shared/components';
+import { formatDate, formatTime, formatPrice, getRelativeTime } from '@hubbard-inn/shared/utils';
+import { Calendar, Clock, MapPin } from 'lucide-react';
+import { FLOORS, AGE_RESTRICTIONS } from '@hubbard-inn/shared/lib';
 
-export interface EventCardProps {
+interface EventCardProps {
   event: Event;
 }
 
+/**
+ * Event Card - Server Component
+ */
 export function EventCard({ event }: EventCardProps) {
-  const eventDate = new Date(event.eventDate);
-  const ageRestrictionBadge = {
-    none: null,
-    '18+': { variant: 'default' as const, text: '18+' },
-    '21+': { variant: 'warning' as const, text: '21+' },
-  }[event.ageRestriction];
-
-  const statusBadge = {
-    draft: { variant: 'outline' as const, text: 'Draft' },
-    published: { variant: 'success' as const, text: 'On Sale' },
-    sold_out: { variant: 'destructive' as const, text: 'Sold Out' },
-    cancelled: { variant: 'destructive' as const, text: 'Cancelled' },
-    completed: { variant: 'secondary' as const, text: 'Completed' },
-  }[event.status];
-
+  const floorInfo = FLOORS[event.floor];
+  const ageInfo = AGE_RESTRICTIONS[event.ageRestriction];
+  const relativeTime = getRelativeTime(event.date);
   const isSoldOut = event.status === 'sold_out';
-  const isCancelled = event.status === 'cancelled';
-  const isAvailable = event.status === 'published' && !isSoldOut && !isCancelled;
 
   return (
-    <div className="bg-card rounded-phi-4 border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      {/* Event Image Placeholder */}
-      <div className="relative h-48 bg-gradient-to-br from-primary/20 to-secondary/20">
-        <div className="absolute top-phi-3 right-phi-3 flex gap-phi-2">
-          <Badge variant={statusBadge.variant}>{statusBadge.text}</Badge>
-          {ageRestrictionBadge && (
-            <Badge variant={ageRestrictionBadge.variant}>{ageRestrictionBadge.text}</Badge>
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      {/* Image */}
+      <div className="relative h-48 bg-gradient-to-br from-primary to-secondary overflow-hidden">
+        {event.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.imageUrl}
+            alt={event.name}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex gap-2">
+          {isSoldOut && (
+            <Badge variant="destructive">Sold Out</Badge>
           )}
+          {event.ageRestriction !== 'none' && (
+            <Badge variant="secondary">{ageInfo.label}</Badge>
+          )}
+        </div>
+
+        {/* Relative Time */}
+        <div className="absolute top-3 right-3">
+          <Badge variant="default" className="bg-black/50 backdrop-blur-sm">
+            {relativeTime}
+          </Badge>
         </div>
       </div>
 
-      {/* Event Details */}
-      <div className="p-phi-4">
-        <h3 className="text-lg font-semibold text-foreground mb-phi-2 line-clamp-2">
-          {event.title}
+      <CardContent className="p-phi-4">
+        {/* Title */}
+        <h3 className="font-heading text-xl text-primary-dark mb-phi-2 line-clamp-2">
+          {event.name}
         </h3>
 
-        {event.description && (
-          <p className="text-sm text-muted-foreground mb-phi-3 line-clamp-2">
-            {event.description}
-          </p>
-        )}
-
-        <div className="space-y-phi-2 mb-phi-4">
-          <div className="flex items-center gap-phi-2 text-sm text-muted-foreground">
+        {/* Details */}
+        <div className="space-y-2 text-sm text-muted-foreground mb-phi-3">
+          <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            <span>
-              {format(eventDate, 'PPP')} at {event.startTime}
-            </span>
+            <span>{formatDate(event.date)}</span>
           </div>
-
-          <div className="flex items-center gap-phi-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span>{formatTime(event.startTime)} - {formatTime(event.endTime)}</span>
+          </div>
+          <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4" />
-            <span>Floor {event.floorNumber}</span>
-          </div>
-
-          <div className="flex items-center gap-phi-2 text-sm text-muted-foreground">
-            <Users className="w-4 h-4" />
-            <span>Capacity: {event.totalCapacity}</span>
+            <span>{floorInfo.label}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        {/* Price and CTA */}
+        <div className="flex items-center justify-between pt-phi-2 border-t border-border">
           <div>
-            {event.coverPrice > 0 ? (
-              <PriceTag amount={event.coverPrice} size="lg" />
-            ) : (
-              <span className="text-lg font-semibold text-foreground">Free</span>
-            )}
+            <span className="text-xs text-muted-foreground">From</span>
+            <p className="text-lg font-semibold text-primary">
+              {formatPrice(event.presalePrice * 100)}
+            </p>
           </div>
-
           <Link href={`/events/${event.id}`}>
             <Button
-              variant={isAvailable ? 'primary' : 'outline'}
-              size="md"
-              disabled={!isAvailable}
+              variant={isSoldOut ? 'secondary' : 'default'}
+              size="sm"
+              disabled={isSoldOut}
             >
-              {isSoldOut ? 'Sold Out' : isCancelled ? 'Cancelled' : 'View Details'}
+              {isSoldOut ? 'Sold Out' : 'Get Tickets'}
             </Button>
           </Link>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

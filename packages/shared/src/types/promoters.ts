@@ -1,82 +1,65 @@
-/**
- * Promoter-related types shared across portals
- */
-
 export interface PromoterLink {
   id: string;
   promoterId: string;
   eventId: string;
-  uniqueCode: string;
-  url: string; // Full URL to the affiliate link
-  customUrl?: string;
+  code: string;
+  url: string;
   clicks: number;
   conversions: number;
-  revenueGenerated: number; // In cents
-  commission?: number; // Commission earned in cents (optional, computed)
+  revenue: number;
+  expiresAt?: string;
   isActive: boolean;
-  expiresAt?: Date | string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Analytics {
+export interface PromoterAnalytics {
   id: string;
-  promoterLinkId: string;
-  eventId: string;
+  linkId: string;
   eventType: 'click' | 'purchase' | 'conversion';
-  ipAddress?: string;
+  visitorIp?: string;
   userAgent?: string;
   referrer?: string;
   ticketId?: string;
-  revenue?: number; // In cents
-  commission?: number; // In cents
-  occurredAt: Date | string;
+  commission?: number;
+  createdAt: string;
+}
+
+export interface PromoterEarnings {
+  totalEarnings: number;
+  pendingPayout: number;
+  lastPayout?: {
+    amount: number;
+    date: string;
+  };
+  byEvent: EventEarnings[];
+}
+
+export interface EventEarnings {
+  eventId: string;
+  eventName: string;
+  conversions: number;
+  revenue: number;
+  commission: number;
 }
 
 export interface CreatePromoterLinkInput {
   eventId: string;
-  customUrl?: string;
-}
-
-export interface PromoterDashboardStats {
-  totalClicks: number;
-  totalConversions: number;
-  totalRevenue: number; // In cents
-  totalEarnings: number; // In cents
-  activeLinks: number;
-  conversionRate: number; // Percentage
+  customCode?: string;
+  expiresAt?: string;
 }
 
 export interface LinkPerformance {
-  linkId: string;
-  eventTitle: string;
-  uniqueCode: string;
   clicks: number;
   conversions: number;
+  conversionRate: number;
   revenue: number;
   commission: number;
-  conversionRate: number;
+  clicksByDay: DailyStats[];
+  conversionsByDay: DailyStats[];
 }
 
-export interface EarningsHistoryItem {
-  id: string;
-  date: Date | string;
-  eventTitle: string;
-  ticketsSold: number;
-  revenue: number; // In cents
-  commission: number; // In cents
-  status: 'paid' | 'pending';
-}
-
-export interface MonthlyEarningsData {
-  month: string;
-  earnings: number; // In cents
-}
-
-export interface EarningsData {
-  totalEarnings: number; // In cents
-  currentMonth: number; // In cents
-  pending: number; // In cents
-  monthlyEarnings: MonthlyEarningsData[];
-  history: EarningsHistoryItem[];
+export interface DailyStats {
+  date: string;
+  count: number;
 }

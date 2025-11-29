@@ -1,34 +1,33 @@
 {
-  "name": "hubbard-inn-demo",
-  "version": "1.0.0",
+  "name": "hubbard-inn-next16",
+  "version": "2.0.0",
   "private": true,
-  "description": "Event management platform with ticketing, affiliate tracking, and bottle service",
+  "description": "Event management platform rebuilt with Next.js 16 best practices",
   "scripts": {
+    "dev": "pnpm -r --parallel dev",
     "dev:admin": "pnpm --filter web-admin dev",
     "dev:customer": "pnpm --filter web-customer dev",
     "dev:promoter": "pnpm --filter web-promoter dev",
     "dev:api": "pnpm --filter api dev",
-    "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev:admin\" \"pnpm dev:customer\" \"pnpm dev:promoter\"",
     "build": "pnpm -r build",
     "build:admin": "pnpm --filter web-admin build",
     "build:customer": "pnpm --filter web-customer build",
     "build:promoter": "pnpm --filter web-promoter build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "deploy:admin": "cd packages/web-admin && pnpm build && wrangler pages deploy dist",
-    "deploy:customer": "cd packages/web-customer && pnpm build && wrangler pages deploy dist",
-    "deploy:promoter": "cd packages/web-promoter && pnpm build && wrangler pages deploy dist"
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [
     "event-management",
     "ticketing",
     "monorepo",
-    "next.js",
+    "next.js-16",
     "react-19",
-    "tailwind-css-4",
-    "drizzle-orm",
-    "neon-db"
+    "turbopack",
+    "server-components",
+    "tailwind-css-4"
   ],
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -38,7 +37,7 @@
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.9.0",
     "pnpm": ">=9.0.0"
   }
 }

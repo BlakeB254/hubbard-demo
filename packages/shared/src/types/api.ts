@@ -1,41 +1,31 @@
-/**
- * API request/response types shared across portals
- */
-
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
-  error?: string;
-  message?: string;
-}
-
-export interface PaginatedResponse<T = any> {
-  success: boolean;
-  data: T[];
-  pagination: {
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
+  error?: ApiError;
+  meta?: ResponseMeta;
 }
 
 export interface ApiError {
-  error: string;
-  message?: string;
-  statusCode: number;
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
 }
 
-export interface ApiResponseWithPagination<T = any> extends ApiResponse<T> {
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    hasMore: boolean;
-  };
+export interface ResponseMeta {
+  page?: number;
+  limit?: number;
+  total?: number;
+  hasMore?: boolean;
 }
 
-export interface ApiValidationError extends ApiError {
-  field: string;
-  value?: any;
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
 }
+
+export interface SortParams {
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export type QueryParams = PaginationParams & SortParams & Record<string, string | number | boolean | undefined>;

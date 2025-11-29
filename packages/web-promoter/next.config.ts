@@ -2,13 +2,26 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@hubbard-inn/shared'],
-  output: 'export', // Static export for Cloudflare Pages
-  images: {
-    unoptimized: true, // Required for static export
+
+  // Static export for Cloudflare Pages
+  output: 'export',
+  distDir: 'out',
+
+  // Trailing slashes for static hosting
+  trailingSlash: true,
+
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', 'recharts'],
   },
+  transpilePackages: ['@hubbard-inn/shared'],
+
+  // Image configuration - unoptimized for static export
+  images: {
+    unoptimized: true,
+  },
+
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.hubbardinn.com',
   },
 };
 

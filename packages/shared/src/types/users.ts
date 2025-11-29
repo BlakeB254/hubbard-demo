@@ -1,33 +1,47 @@
-/**
- * User-related types shared across portals
- */
-
 export type UserRole = 'admin' | 'customer' | 'promoter';
-export type PromoterStatus = 'pending' | 'active' | 'suspended' | 'banned';
+export type PromoterStatus = 'pending' | 'approved' | 'suspended' | 'rejected';
 
 export interface UserProfile {
   id: string;
-  userId: string; // Stack Auth user ID
+  userId: string;
+  email: string;
+  name: string;
   role: UserRole;
   phone?: string;
+  // Customer fields
   loyaltyPoints?: number;
-  preferences?: string; // JSON string
+  preferences?: CustomerPreferences;
+  // Promoter fields
   promoterStatus?: PromoterStatus;
-  commissionRate?: number; // Percentage
-  totalEarnings?: number; // In cents
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  lastLoginAt?: Date | string;
+  commissionRate?: number;
+  totalEarnings?: number;
+  payoutDetails?: PayoutDetails;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomerPreferences {
+  preferredFloor?: string;
+  newsletter: boolean;
+  smsNotifications: boolean;
+}
+
+export interface PayoutDetails {
+  method: 'bank' | 'paypal' | 'venmo';
+  accountDetails: string;
 }
 
 export interface CreateUserProfileInput {
   userId: string;
+  email: string;
+  name: string;
   role: UserRole;
   phone?: string;
-  commissionRate?: number;
 }
 
-export interface UpdateUserProfileInput extends Partial<CreateUserProfileInput> {
-  promoterStatus?: PromoterStatus;
-  loyaltyPoints?: number;
+export interface UpdateUserProfileInput {
+  name?: string;
+  phone?: string;
+  preferences?: CustomerPreferences;
+  payoutDetails?: PayoutDetails;
 }

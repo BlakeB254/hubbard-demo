@@ -1,60 +1,81 @@
-'use client';
+import type { Event, UserProfile } from '@hubbard-inn/shared/types';
 
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+export interface AdminStats {
+  totalRevenue: number;
+  ticketsSold: number;
+  activeEvents: number;
+  activePromoters: number;
 }
 
-export async function apiCall<T = unknown>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<ApiResponse<T>> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+export interface AnalyticsData {
+  revenue: { date: string; amount: number }[];
+  tickets: { date: string; count: number }[];
+  topEvents: { name: string; tickets: number; revenue: number }[];
+}
 
-  // Get token from Stack Auth (stored in cookies, will be sent automatically)
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    credentials: 'include', // Include cookies for auth
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({
-      error: 'API request failed',
-    }));
-    throw new Error(error.error || error.message || 'API request failed');
+export async function getAdminStats(): Promise<AdminStats> {
+  try {
+    const response = await fetch(`${API_URL}/api/admin/stats`, {
+      next: { revalidate: 60, tags: ['admin-stats'] },
+    });
+    if (!response.ok) throw new Error('Failed to fetch stats');
+    const data = await response.json();
+    return data.data || { totalRevenue: 0, ticketsSold: 0, activeEvents: 0, activePromoters: 0 };
+  } catch {
+    return { totalRevenue: 0, ticketsSold: 0, activeEvents: 0, activePromoters: 0 };
   }
-
-  return response.json();
 }
 
-// Helper functions for common HTTP methods
-export const api = {
-  get: <T = unknown>(endpoint: string) => apiCall<T>(endpoint, { method: 'GET' }),
+export async function getRecentEvents(limit = 5): Promise<Event[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/admin/events?limit=${limit}&sort=createdAt:desc`, {
+      next: { revalidate: 30, tags: ['events'] },
+    });
+    if (!response.ok) throw new Error('Failed to fetch events');
+    const data = await response.json();
+    return data.data || [];
+  } catch {
+    return [];
+  }
+}
 
-  post: <T = unknown>(endpoint: string, data?: unknown) =>
-    apiCall<T>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+export async function getAllEvents(): Promise<Event[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/admin/events`, {
+      next: { revalidate: 30, tags: ['events'] },
+    });
+    if (!response.ok) throw new Error('Failed to fetch events');
+    const data = await response.json();
+    return data.data || [];
+  } catch {
+    return [];
+  }
+}
 
-  put: <T = unknown>(endpoint: string, data?: unknown) =>
-    apiCall<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+export async function getPromoters(): Promise<UserProfile[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/admin/promoters`, {
+      next: { revalidate: 60, tags: ['promoters'] },
+    });
+    if (!response.ok) throw new Error('Failed to fetch promoters');
+    const data = await response.json();
+    return data.data || [];
+  } catch {
+    return [];
+  }
+}
 
-  patch: <T = unknown>(endpoint: string, data?: unknown) =>
-    apiCall<T>(endpoint, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-
-  delete: <T = unknown>(endpoint: string) =>
-    apiCall<T>(endpoint, { method: 'DELETE' }),
-};
+export async function getAnalytics(): Promise<AnalyticsData> {
+  try {
+    const response = await fetch(`${API_URL}/api/admin/analytics`, {
+      next: { revalidate: 300, tags: ['analytics'] },
+    });
+    if (!response.ok) throw new Error('Failed to fetch analytics');
+    const data = await response.json();
+    return data.data || { revenue: [], tickets: [], topEvents: [] };
+  } catch {
+    return { revenue: [], tickets: [], topEvents: [] };
+  }
+}

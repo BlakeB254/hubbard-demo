@@ -1,13 +1,7 @@
 /**
- * Formatting utilities
+ * Format a price as USD currency
  */
-
-/**
- * Format cents to dollar string
- * @param cents - Amount in cents
- * @returns Formatted dollar string (e.g., "$20.00")
- */
-export function formatCurrency(cents: number): string {
+export function formatPrice(cents: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -15,52 +9,35 @@ export function formatCurrency(cents: number): string {
 }
 
 /**
- * Format date to readable string
- * @param date - Date to format
- * @returns Formatted date string
+ * Format a number with commas
  */
-export function formatDate(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+export function formatNumber(num: number): string {
+  return new Intl.NumberFormat('en-US').format(num);
 }
 
 /**
- * Format time to readable string
- * @param time - Time string in HH:MM format
- * @returns Formatted time string (e.g., "9:00 PM")
+ * Format a percentage
  */
-export function formatTime(time: string): string {
-  const [hours, minutes] = time.split(':').map(Number);
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const displayHours = hours % 12 || 12;
-  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+export function formatPercent(value: number, decimals = 1): string {
+  return `${value.toFixed(decimals)}%`;
 }
 
 /**
- * Format currency to short form (e.g., $1.5k for $1,500)
- * @param cents - Amount in cents
- * @returns Formatted currency string with k suffix if >= 1000
+ * Truncate text with ellipsis
  */
-export function formatCurrencyShort(cents: number): string {
-  const dollars = cents / 100;
-  if (dollars >= 1000) {
-    return `$${(dollars / 1000).toFixed(1)}k`;
+export function truncate(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength)}...`;
+}
+
+/**
+ * Generate a random alphanumeric code
+ */
+export function generateCode(length = 8): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
   }
-  return formatCurrency(cents);
-}
-
-/**
- * Parse currency string to cents
- * @param value - Currency string (e.g., "$20.00" or "20")
- * @returns Amount in cents
- */
-export function parseCurrency(value: string): number {
-  // Remove $ and commas, convert to cents
-  const cleaned = value.replace(/[$,]/g, '');
-  return Math.round(parseFloat(cleaned) * 100);
+  return code;
 }

@@ -1,89 +1,87 @@
-import { type ButtonHTMLAttributes, forwardRef } from 'react';
+import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
 
-/**
- * Button variants using class-variance-authority
- * Follows Hubbard Inn design system with golden ratio spacing
- */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-foreground hover:bg-primary-dark shadow-md hover:shadow-lg',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md hover:shadow-lg',
-        accent: 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg',
-        outline: 'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground',
-        ghost: 'hover:bg-primary/10 hover:text-primary',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md',
+        default:
+          'bg-primary text-primary-foreground shadow hover:bg-primary-dark active:scale-[0.98]',
+        destructive:
+          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:scale-[0.98]',
+        outline:
+          'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]',
+        secondary:
+          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:scale-[0.98]',
+        accent:
+          'bg-accent text-accent-foreground shadow-sm hover:bg-accent/90 active:scale-[0.98]',
+        ghost:
+          'hover:bg-muted hover:text-foreground',
+        link:
+          'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        sm: 'h-9 px-phi-3 py-phi-2 text-sm',
-        md: 'h-11 px-phi-4 py-phi-3',
-        lg: 'h-13 px-phi-5 py-phi-4 text-lg',
-        icon: 'h-11 w-11',
+        sm: 'h-9 rounded-md px-3 text-xs',
+        md: 'h-10 px-4 py-2',
+        lg: 'h-11 rounded-lg px-8 text-base',
+        xl: 'h-12 rounded-lg px-10 text-base font-semibold',
+        icon: 'h-10 w-10',
       },
     },
     defaultVariants: {
-      variant: 'primary',
+      variant: 'default',
       size: 'md',
     },
   }
 );
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  /**
-   * If true, renders the component as a Slot for composition
-   */
   asChild?: boolean;
-  /**
-   * If true, shows a loading spinner and disables the button
-   */
-  isLoading?: boolean;
+  loading?: boolean;
 }
 
-/**
- * Unified Button component
- * Combines best features from all app implementations:
- * - class-variance-authority for variant management
- * - Radix Slot for composition (asChild)
- * - Loading state support
- * - Golden ratio spacing
- */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      asChild = false,
-      isLoading = false,
-      disabled,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, loading, disabled, children, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
-
     return (
       <Comp
-        ref={ref}
         className={cn(buttonVariants({ variant, size, className }))}
-        disabled={disabled || isLoading}
+        ref={ref}
+        disabled={disabled || loading}
         {...props}
       >
-        {isLoading && (
-          <div className="mr-phi-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        {loading && (
+          <svg
+            className="animate-spin -ml-1 mr-2 h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
         )}
         {children}
       </Comp>
     );
   }
 );
-
 Button.displayName = 'Button';
+
+export { Button, buttonVariants };

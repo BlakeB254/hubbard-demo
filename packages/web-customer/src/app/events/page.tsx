@@ -1,100 +1,77 @@
-'use client';
+import { Suspense } from 'react';
+import type { Metadata } from 'next';
+import { EventGrid, EventGridSkeleton } from '@/components/customer/organisms/EventGrid';
+import { EventFilters } from '@/components/customer/molecules/EventFilters';
+import { getAllEvents } from '@/lib/api';
+import type { EventFloor } from '@hubbard-inn/shared/types';
 
-import { useEffect, useState } from 'react';
-import { EventGrid } from '@/components/customer/organisms/EventGrid';
-import { FilterControls, type FilterOptions } from '@/components/customer/molecules/FilterControls';
-import type { Event } from '@hubbard-inn/shared/types';
+export const metadata: Metadata = {
+  title: 'Events',
+  description: 'Browse all upcoming events at Hubbard Inn',
+};
 
-export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<FilterOptions>({
-    floor: 'all',
-    ageRestriction: 'all',
-    status: 'all',
-  });
+interface EventsPageProps {
+  searchParams: Promise<{
+    floor?: EventFloor;
+    search?: string;
+  }>;
+}
 
-  useEffect(() => {
-    loadEvents();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters, events]);
-
-  const loadEvents = async () => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const response = await fetch(`${API_URL}/api/customer/events`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data.data || []);
-      }
-    } catch (error) {
-      console.error('Failed to load events:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const applyFilters = () => {
-    let filtered = [...events];
-
-    if (filters.floor !== 'all') {
-      filtered = filtered.filter((event) => event.floorNumber === filters.floor);
-    }
-
-    if (filters.ageRestriction !== 'all') {
-      filtered = filtered.filter((event) => event.ageRestriction === filters.ageRestriction);
-    }
-
-    if (filters.status !== 'all') {
-      filtered = filtered.filter((event) => event.status === filters.status);
-    }
-
-    setFilteredEvents(filtered);
-  };
+/**
+ * Next.js 16: Async searchParams with proper await
+ */
+export default async function EventsPage({ searchParams }: EventsPageProps) {
+  // Next.js 16: searchParams must be awaited
+  const params = await searchParams;
 
   return (
     <main className="min-h-screen pb-20 md:pb-0">
-      <div className="bg-gradient-to-br from-primary/10 to-secondary/10 py-phi-6 px-phi-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-phi-2">
-            All Events
+      {/* Header */}
+      <section className="bg-gradient-to-b from-primary to-primary-dark text-white py-phi-6">
+        <div className="max-w-7xl mx-auto px-phi-4">
+          <h1 className="font-heading text-4xl md:text-5xl font-normal mb-phi-2">
+            Upcoming Events
           </h1>
-          <p className="text-muted-foreground">
-            Browse all upcoming events at Hubbard Inn
+          <p className="text-white/80 text-lg max-w-2xl">
+            Discover the best events at Chicago&apos;s premier venue
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-phi-4 py-phi-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-phi-5">
-          {/* Filters Sidebar */}
-          <aside className="lg:col-span-1">
-            <FilterControls filters={filters} onFilterChange={setFilters} />
-          </aside>
+      {/* Filters and Events */}
+      <section className="max-w-7xl mx-auto px-phi-4 py-phi-5">
+        <EventFilters currentFloor={params.floor} />
 
-          {/* Events Grid */}
-          <div className="lg:col-span-3">
-            <div className="mb-phi-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {loading
-                  ? 'Loading events...'
-                  : `Showing ${filteredEvents.length} ${filteredEvents.length === 1 ? 'event' : 'events'}`}
-              </p>
-            </div>
-
-            <EventGrid
-              events={filteredEvents}
-              loading={loading}
-              emptyMessage="No events match your filters. Try adjusting your selection."
-            />
-          </div>
+        <div className="mt-phi-5">
+          <Suspense
+            key={`${params.floor}-${params.search}`}
+            fallback={<EventGridSkeleton count={9} />}
+          >
+            <EventsList floor={params.floor} search={params.search} />
+          </Suspense>
         </div>
-      </div>
+      </section>
     </main>
+  );
+}
+
+async function EventsList({
+  floor,
+  search,
+}: {
+  floor?: EventFloor;
+  search?: string;
+}) {
+  const events = await getAllEvents({ floor, search });
+
+  return (
+    <EventGrid
+      events={events}
+      emptyMessage={
+        floor || search
+          ? 'No events match your filters. Try adjusting your search.'
+          : 'No upcoming events at this time.'
+      }
+    />
   );
 }

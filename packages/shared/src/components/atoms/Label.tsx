@@ -1,40 +1,23 @@
+import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
-import { forwardRef } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
 
-export interface LabelProps
-  extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
-  /**
-   * If true, shows a required asterisk after the label text
-   */
-  required?: boolean;
-}
+const labelVariants = cva(
+  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+);
 
-/**
- * Unified Label component
- * Uses Radix UI Label primitive for accessibility
- * Features:
- * - Proper form association
- * - Required field indicator
- * - Disabled state styling
- */
-export const Label = forwardRef<
+const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  LabelProps
->(({ className, children, required, ...props }, ref) => {
-  return (
-    <LabelPrimitive.Root
-      ref={ref}
-      className={cn(
-        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {required && <span className="text-destructive ml-1">*</span>}
-    </LabelPrimitive.Root>
-  );
-});
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+    VariantProps<typeof labelVariants>
+>(({ className, ...props }, ref) => (
+  <LabelPrimitive.Root
+    ref={ref}
+    className={cn(labelVariants(), className)}
+    {...props}
+  />
+));
+Label.displayName = LabelPrimitive.Root.displayName;
 
-Label.displayName = 'Label';
+export { Label };

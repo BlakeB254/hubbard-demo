@@ -1,203 +1,120 @@
 'use client';
 
-import { Event, Badge, Button, cn } from '@hubbard-inn/shared';
-import { format } from 'date-fns';
+import { useState } from 'react';
+import Link from 'next/link';
+import type { Event } from '@hubbard-inn/shared/types';
+import { Badge, Button, Card, CardContent, Skeleton } from '@hubbard-inn/shared/components';
+import { formatDate, formatPrice } from '@hubbard-inn/shared/utils';
+import { EVENT_STATUSES, FLOORS } from '@hubbard-inn/shared/lib';
+import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 
-export interface EventTableProps {
+interface EventTableProps {
   events: Event[];
-  onEdit?: (id: string) => void;
-  onView?: (id: string) => void;
-  onCancel?: (id: string) => void;
 }
 
-export function EventTable({ events, onEdit, onView, onCancel }: EventTableProps) {
-  const getStatusVariant = (status: Event['status']) => {
-    switch (status) {
-      case 'published':
-        return 'success';
-      case 'sold_out':
-        return 'error';
-      case 'cancelled':
-        return 'error';
-      case 'completed':
-        return 'info';
-      default:
-        return 'default';
-    }
-  };
-
+export function EventTable({ events }: EventTableProps) {
   if (events.length === 0) {
     return (
-      <div className="border border-border rounded-lg p-phi-6 text-center">
-        <p className="text-muted-foreground">No events found</p>
-      </div>
+      <Card>
+        <CardContent className="py-phi-6 text-center">
+          <p className="text-muted-foreground">No events found</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <>
-      {/* Mobile Card Layout */}
-      <div className="lg:hidden space-y-phi-3">
-        {events.map((event) => (
-          <div
-            key={event.id}
-            className="border border-border rounded-lg p-phi-4 bg-card hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-start justify-between mb-phi-3">
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground">{event.title}</h3>
-                {event.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-phi-1">
-                    {event.description}
-                  </p>
-                )}
-              </div>
-              <Badge variant={getStatusVariant(event.status)} className="ml-phi-2">
-                {event.status.replace('_', ' ')}
-              </Badge>
-            </div>
+    <Card>
+      <CardContent className="p-0 overflow-x-auto">
+        <table className="w-full min-w-[800px]">
+          <thead className="border-b border-border bg-muted/50">
+            <tr className="text-left text-sm text-muted-foreground">
+              <th className="p-phi-3 font-medium">Event</th>
+              <th className="p-phi-3 font-medium">Date</th>
+              <th className="p-phi-3 font-medium">Venue</th>
+              <th className="p-phi-3 font-medium">Capacity</th>
+              <th className="p-phi-3 font-medium">Price</th>
+              <th className="p-phi-3 font-medium">Status</th>
+              <th className="p-phi-3 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.map((event) => {
+              const statusInfo = EVENT_STATUSES[event.status];
+              const floorInfo = FLOORS[event.floor];
+              const percentSold = Math.round((event.ticketsSold / event.capacity) * 100);
 
-            <div className="grid grid-cols-2 gap-phi-3 text-sm mb-phi-4">
-              <div>
-                <p className="text-muted-foreground">Date</p>
-                <p className="font-medium">{format(new Date(event.eventDate), 'MMM d, yyyy')}</p>
-                <p className="text-xs text-muted-foreground">{event.startTime}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Floor</p>
-                <p className="font-medium">Floor {event.floorNumber}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Capacity</p>
-                <p className="font-medium">{event.totalCapacity}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Price</p>
-                <p className="font-medium">${(event.coverPrice / 100).toFixed(2)}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-phi-2">
-              {onView && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onView(event.id)}
-                  className="flex-1"
-                >
-                  View
-                </Button>
-              )}
-              {onEdit && event.status !== 'cancelled' && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => onEdit(event.id)}
-                  className="flex-1"
-                >
-                  Edit
-                </Button>
-              )}
-              {onCancel && event.status === 'published' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive flex-1"
-                  onClick={() => onCancel(event.id)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop Table Layout */}
-      <div className="hidden lg:block border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted border-b border-border">
-              <tr>
-                <th className="text-left p-phi-3 font-semibold text-sm">Event</th>
-                <th className="text-left p-phi-3 font-semibold text-sm">Date</th>
-                <th className="text-left p-phi-3 font-semibold text-sm">Floor</th>
-                <th className="text-left p-phi-3 font-semibold text-sm">Capacity</th>
-                <th className="text-left p-phi-3 font-semibold text-sm">Price</th>
-                <th className="text-left p-phi-3 font-semibold text-sm">Status</th>
-                <th className="text-left p-phi-3 font-semibold text-sm">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((event) => (
-                <tr
-                  key={event.id}
-                  className="border-t border-border hover:bg-muted/50 transition-colors"
-                >
+              return (
+                <tr key={event.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                   <td className="p-phi-3">
                     <div>
-                      <p className="font-medium">{event.title}</p>
-                      {event.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {event.description}
-                        </p>
-                      )}
+                      <span className="font-medium block">{event.name}</span>
+                      <span className="text-sm text-muted-foreground truncate block max-w-[200px]">
+                        {event.description}
+                      </span>
                     </div>
                   </td>
-                  <td className="p-phi-3 text-sm">
-                    <div>
-                      <p>{format(new Date(event.eventDate), 'MMM d, yyyy')}</p>
-                      <p className="text-muted-foreground">{event.startTime}</p>
-                    </div>
-                  </td>
-                  <td className="p-phi-3 text-sm">Floor {event.floorNumber}</td>
-                  <td className="p-phi-3 text-sm">{event.totalCapacity}</td>
-                  <td className="p-phi-3 text-sm font-medium">
-                    ${(event.coverPrice / 100).toFixed(2)}
+                  <td className="p-phi-3 text-muted-foreground">
+                    {formatDate(event.date)}
                   </td>
                   <td className="p-phi-3">
-                    <Badge variant={getStatusVariant(event.status)}>
-                      {event.status.replace('_', ' ')}
+                    {floorInfo.label}
+                  </td>
+                  <td className="p-phi-3">
+                    <div>
+                      <span>{event.ticketsSold}/{event.capacity}</span>
+                      <div className="w-20 bg-muted rounded-full h-1.5 mt-1">
+                        <div
+                          className="bg-primary h-1.5 rounded-full"
+                          style={{ width: `${percentSold}%` }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-phi-3">
+                    {formatPrice(event.presalePrice * 100)}
+                  </td>
+                  <td className="p-phi-3">
+                    <Badge variant={statusInfo.color as 'default' | 'secondary' | 'destructive' | 'accent' | 'success' | 'muted'}>
+                      {statusInfo.label}
                     </Badge>
                   </td>
                   <td className="p-phi-3">
-                    <div className="flex gap-phi-2">
-                      {onView && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onView(event.id)}
-                        >
-                          View
-                        </Button>
-                      )}
-                      {onEdit && event.status !== 'cancelled' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEdit(event.id)}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                      {onCancel && event.status === 'published' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => onCancel(event.id)}
-                        >
-                          Cancel
-                        </Button>
-                      )}
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
+              );
+            })}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function EventTableSkeleton() {
+  return (
+    <Card>
+      <CardContent className="p-phi-4 space-y-phi-3">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-phi-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
