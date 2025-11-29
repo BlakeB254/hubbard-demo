@@ -1,54 +1,52 @@
-/**
- * Event-related types shared across portals
- */
-
 export type EventStatus = 'draft' | 'published' | 'sold_out' | 'cancelled' | 'completed';
+export type EventFloor = 'main' | 'rooftop' | 'private';
 export type AgeRestriction = 'none' | '18+' | '21+';
-export type FloorNumber = '1' | '2' | '3';
+export type SalesMode = 'presale' | 'door' | 'both';
 
 export interface Event {
   id: string;
-  title: string;
-  description?: string;
-  eventDate: Date | string;
+  name: string;
+  description: string;
+  date: string;
   startTime: string;
-  endTime?: string;
-  venueId: string;
-  floorNumber: FloorNumber;
-  totalCapacity: number;
-  capacity?: number; // Alias for totalCapacity (for compatibility)
-  ticketsSold?: number; // Number of tickets sold (optional, computed)
-  ageRestriction: AgeRestriction;
-  coverPrice: number; // In cents
-  presaleEnabled: boolean;
-  doorSalesEnabled: boolean;
-  presaleEndTime?: Date | string;
-  affiliateCommissionEnabled: boolean;
-  affiliateCommissionAmount: number; // In cents
+  endTime: string;
+  floor: EventFloor;
   status: EventStatus;
-  createdBy: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  imageUrl?: string;
+  presalePrice: number;
+  doorPrice: number;
+  capacity: number;
+  ticketsSold: number;
+  ageRestriction: AgeRestriction;
+  salesMode: SalesMode;
+  affiliateCommission: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateEventInput {
-  title: string;
-  description?: string;
-  eventDate: Date | string;
+  name: string;
+  description: string;
+  date: string;
   startTime: string;
-  endTime?: string;
-  venueId: string;
-  floorNumber: FloorNumber;
-  totalCapacity: number;
-  ageRestriction?: AgeRestriction;
-  coverPrice: number;
-  presaleEnabled?: boolean;
-  doorSalesEnabled?: boolean;
-  presaleEndTime?: Date | string;
-  affiliateCommissionEnabled?: boolean;
-  affiliateCommissionAmount?: number;
+  endTime: string;
+  floor: EventFloor;
+  presalePrice: number;
+  doorPrice: number;
+  capacity: number;
+  ageRestriction: AgeRestriction;
+  salesMode: SalesMode;
+  affiliateCommission?: number;
+  imageUrl?: string;
 }
 
 export interface UpdateEventInput extends Partial<CreateEventInput> {
   status?: EventStatus;
+}
+
+export interface EventFilters {
+  floor?: EventFloor;
+  status?: EventStatus;
+  date?: string;
+  search?: string;
 }

@@ -1,51 +1,58 @@
-/**
- * Section (Bottle Service) related types shared across portals
- */
-
 export type SectionStatus = 'available' | 'reserved' | 'occupied' | 'blocked';
-export type ReservationStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+export type ReservationStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export interface Section {
   id: string;
   eventId: string;
-  sectionName: string;
-  floorPlanPosition?: { x: number; y: number };
+  name: string;
   capacity: number;
-  bottleMinimum: number; // In cents
-  depositRequired: boolean;
-  depositAmount: number; // In cents
+  minimumSpend: number;
+  depositAmount: number;
   status: SectionStatus;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  floorPlanPosition?: FloorPlanPosition;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Bottle {
-  name: string;
-  price: number; // In cents
-  quantity: number;
+export interface FloorPlanPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface SectionReservation {
   id: string;
   sectionId: string;
-  customerId: string;
-  bottlesSelected: Bottle[];
-  totalCost: number; // In cents
-  depositPaid: number; // In cents
-  balanceDue: number; // In cents
-  balancePaidAt?: Date | string;
-  depositPaymentIntentId?: string;
-  balancePaymentIntentId?: string;
+  eventId: string;
+  userId?: string;
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
   status: ReservationStatus;
-  specialRequests?: string;
-  guestCount: number;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  depositPaid: number;
+  balanceDue: number;
+  totalAmount: number;
+  bottles?: BottleSelection[];
+  stripeDepositPaymentId?: string;
+  stripeBalancePaymentId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface CreateSectionReservationInput {
+export interface BottleSelection {
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface CreateReservationInput {
   sectionId: string;
-  bottlesSelected: Bottle[];
-  guestCount: number;
-  specialRequests?: string;
+  eventId: string;
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
+  bottles?: BottleSelection[];
+  notes?: string;
 }

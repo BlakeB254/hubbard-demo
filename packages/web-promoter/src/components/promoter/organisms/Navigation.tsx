@@ -1,93 +1,92 @@
 'use client';
 
-import { UserButton } from '@stackframe/stack';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Calendar, Link as LinkIcon, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Calendar, Link2, DollarSign, Menu, X } from 'lucide-react';
+import { cn } from '@hubbard-inn/shared/utils';
+import { Button } from '@hubbard-inn/shared/components';
+import { useState } from 'react';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/events', label: 'Events', icon: Calendar },
-  { href: '/links', label: 'My Links', icon: LinkIcon },
-  { href: '/earnings', label: 'Earnings', icon: DollarSign },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/events', icon: Calendar, label: 'Events' },
+  { href: '/links', icon: Link2, label: 'My Links' },
+  { href: '/earnings', icon: DollarSign, label: 'Earnings' },
 ];
 
 export function Navigation() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-card border-b border-border">
-      <div className="max-w-7xl mx-auto px-phi-5">
-        <div className="flex items-center justify-between h-[55px]">
-          {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-phi-3">
-            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">H</span>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg">Hubbard Inn</h1>
-              <p className="text-xs text-muted-foreground">Promoter Dashboard</p>
-            </div>
-          </Link>
+    <header className="fixed top-0 left-0 right-0 h-16 bg-primary-dark text-white z-50">
+      <div className="max-w-7xl mx-auto px-phi-4 h-full flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/dashboard" className="font-heading text-xl">
+          Hubbard Inn <span className="text-accent">Promoter</span>
+        </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-phi-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`
-                    flex items-center gap-phi-2 px-phi-4 py-phi-2 rounded-md transition-colors
-                    ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                    }
-                  `}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* User Menu */}
-          <div className="flex items-center gap-phi-3">
-            <UserButton />
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden pb-phi-3 flex gap-phi-2 overflow-x-auto">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-phi-2">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
+            const isActive = pathname === item.href ||
+              (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`
-                  flex items-center gap-phi-2 px-phi-3 py-phi-2 rounded-md whitespace-nowrap transition-colors
-                  ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  }
-                `}
+                className={cn(
+                  'flex items-center gap-2 px-phi-3 py-phi-2 rounded-lg transition-colors',
+                  isActive
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
+                )}
               >
-                <Icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{item.label}</span>
+                <item.icon className="w-4 h-4" />
+                <span className="font-medium text-sm">{item.label}</span>
               </Link>
             );
           })}
-        </div>
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden text-white"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </Button>
       </div>
-    </nav>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <nav className="md:hidden bg-primary-dark border-t border-white/10">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href ||
+              (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  'flex items-center gap-3 px-phi-4 py-phi-3 border-b border-white/5',
+                  isActive
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/70'
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+    </header>
   );
 }

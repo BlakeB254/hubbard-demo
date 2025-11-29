@@ -1,18 +1,37 @@
 import type { Metadata, Viewport } from 'next';
+import { Prata, Montserrat } from 'next/font/google';
 import '@hubbard-inn/shared/styles';
-import { Providers } from './providers';
+
+const prata = Prata({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-heading',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+});
 
 export const metadata: Metadata = {
-  title: 'Hubbard Inn Admin',
-  description: 'Event management and ticketing administration',
+  title: {
+    default: 'Hubbard Inn Admin',
+    template: '%s | Admin Portal',
+  },
+  description: 'Manage events, tickets, and promoters at Hubbard Inn',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: '#304B3C', // Hubbard Inn Forest Green
+  maximumScale: 5,
+  themeColor: '#304B3C',
 };
 
 export default function RootLayout({
@@ -21,9 +40,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
-        <Providers>{children}</Providers>
+    <html lang="en" className={`${prata.variable} ${montserrat.variable}`}>
+      <body className="antialiased min-h-screen bg-background text-foreground">
+        {children}
       </body>
     </html>
   );

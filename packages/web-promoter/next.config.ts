@@ -2,10 +2,18 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    ppr: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', 'recharts'],
+  },
   transpilePackages: ['@hubbard-inn/shared'],
-  output: 'export', // Static export for Cloudflare Pages
   images: {
-    unoptimized: true, // Required for static export
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',

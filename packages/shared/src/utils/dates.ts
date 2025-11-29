@@ -1,46 +1,63 @@
-/**
- * Date utilities
- */
-
-import { formatDate, formatTime } from './format';
+import { format, parseISO, isAfter, isBefore, addDays, differenceInDays } from 'date-fns';
 
 /**
- * Check if an event date is in the future
- * @param eventDate - Date to check
- * @returns True if date is in the future
+ * Format a date string for display
  */
-export function isUpcoming(eventDate: Date | string): boolean {
-  const date = typeof eventDate === 'string' ? new Date(eventDate) : eventDate;
-  return date > new Date();
+export function formatDate(dateString: string, formatStr = 'MMM d, yyyy'): string {
+  return format(parseISO(dateString), formatStr);
 }
 
 /**
- * Check if an event date is in the past
- * @param eventDate - Date to check
- * @returns True if date is in the past
+ * Format a time string for display
  */
-export function isPast(eventDate: Date | string): boolean {
-  return !isUpcoming(eventDate);
+export function formatTime(timeString: string): string {
+  const [hours, minutes] = timeString.split(':');
+  const hour = parseInt(hours ?? '0', 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
 }
 
 /**
- * Calculate days until an event
- * @param eventDate - Event date
- * @returns Number of days until event (negative if past)
+ * Format date and time together
  */
-export function daysUntil(eventDate: Date | string): number {
-  const date = typeof eventDate === 'string' ? new Date(eventDate) : eventDate;
-  const now = new Date();
-  const diff = date.getTime() - now.getTime();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+export function formatDateTime(dateString: string, timeString: string): string {
+  return `${formatDate(dateString)} at ${formatTime(timeString)}`;
 }
 
 /**
- * Format event date and time together
- * @param date - Event date
- * @param time - Event time in HH:MM format
- * @returns Formatted date and time string
+ * Check if a date is in the future
  */
-export function formatEventDateTime(date: Date | string, time: string): string {
-  return `${formatDate(date)} at ${formatTime(time)}`;
+export function isFutureDate(dateString: string): boolean {
+  return isAfter(parseISO(dateString), new Date());
 }
+
+/**
+ * Check if a date is in the past
+ */
+export function isPastDate(dateString: string): boolean {
+  return isBefore(parseISO(dateString), new Date());
+}
+
+/**
+ * Get days until event
+ */
+export function getDaysUntil(dateString: string): number {
+  return differenceInDays(parseISO(dateString), new Date());
+}
+
+/**
+ * Get relative time string (e.g., "in 3 days", "tomorrow")
+ */
+export function getRelativeTime(dateString: string): string {
+  const days = getDaysUntil(dateString);
+
+  if (days < 0) return 'Past event';
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  if (days < 7) return `In ${days} days`;
+  if (days < 14) return 'Next week';
+  return formatDate(dateString);
+}
+
+export { addDays, parseISO };

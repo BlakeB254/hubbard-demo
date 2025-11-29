@@ -1,12 +1,24 @@
-# Hubbard Inn Demo
+# Hubbard Inn Demo - Next.js 16
 
 [![GitHub](https://img.shields.io/github/license/BlakeB254/hubbard-demo)](https://github.com/BlakeB254/hubbard-demo)
 [![CI](https://github.com/BlakeB254/hubbard-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/BlakeB254/hubbard-demo/actions/workflows/ci.yml)
 [![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-cc00ff.svg)](https://pnpm.io/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 
-A comprehensive event management and ticketing platform with three distinct user portals (Admin, Customer, Promoter) built on a unified backend infrastructure.
+A comprehensive event management and ticketing platform rebuilt with **Next.js 16 best practices**. Features three distinct user portals (Admin, Customer, Promoter) built on a unified backend infrastructure.
 
-## 🎯 Features
+## What's New in This Version
+
+- **Next.js 16** with Turbopack (stable) for 2-5x faster builds
+- **Server Components** by default with proper `'use client'` boundaries
+- **Streaming with Suspense** for instant navigation
+- **Partial Pre-Rendering (PPR)** for optimal performance
+- **Async params/searchParams** following Next.js 16 patterns
+- **next/font optimization** with Google Fonts (Prata + Montserrat)
+- **Metadata API** for comprehensive SEO
+- **Loading/Error boundaries** at every route level
+
+## Features
 
 ### Core Functionality
 - **Event Management**: Create and manage events across three venue floors
@@ -17,12 +29,12 @@ A comprehensive event management and ticketing platform with three distinct user
 - **Secure Payments**: Stripe integration with Apple Pay/Google Pay support
 
 ### Technology Stack
-- **Frontend**: Next.js 15 + React 19 + Tailwind CSS 4
+- **Frontend**: Next.js 16 + React 19 + Tailwind CSS 4
 - **Backend**: Express.js + Node.js
 - **Database**: Neon (Serverless PostgreSQL) + Drizzle ORM
-- **Authentication**: Stack Auth (Neon Auth) with RBAC
+- **Authentication**: Stack Auth with RBAC
 - **Payments**: Stripe API with mobile optimization
-- **Deployment**: Cloudflare Pages (static frontends)
+- **Bundler**: Turbopack (stable in Next.js 16)
 - **Architecture**: pnpm monorepo
 
 ---
@@ -448,7 +460,8 @@ Use test credit cards:
 
 ### Documentation
 
-- [Next.js 15 Docs](https://nextjs.org/docs)
+- [Next.js 16 Docs](https://nextjs.org/docs)
+- [Next.js 16 Blog Post](https://nextjs.org/blog/next-16)
 - [Drizzle ORM](https://orm.drizzle.team)
 - [Neon Database](https://neon.tech/docs)
 - [Stack Auth](https://docs.stack-auth.com)

@@ -1,47 +1,44 @@
-/**
- * Ticket-related types shared across portals
- */
-
-export type PurchaseType = 'presale' | 'door';
 export type TicketStatus = 'valid' | 'used' | 'refunded' | 'cancelled';
+export type TicketType = 'presale' | 'door';
 
 export interface Ticket {
   id: string;
   eventId: string;
-  customerId: string;
-  promoterId?: string;
-  purchaseType: PurchaseType;
-  pricePaid: number; // In cents
-  affiliateCommissionEarned: number; // In cents
-  qrCode: string;
+  userId?: string;
+  guestOrderId?: string;
   status: TicketStatus;
-  isScanned: boolean;
-  scannedAt?: Date | string;
-  scannedBy?: string;
-  stripePaymentIntentId?: string;
-  purchasedAt: Date | string;
-  createdAt: Date | string;
+  type: TicketType;
+  price: number;
+  qrCode: string;
+  totpSecret: string;
+  affiliateLinkId?: string;
+  stripePaymentId?: string;
+  purchasedAt: string;
+  usedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PurchaseTicketInput {
   eventId: string;
   quantity: number;
-  promoterCode?: string;
+  type: TicketType;
+  affiliateCode?: string;
 }
 
-export interface TicketWithEvent extends Ticket {
-  event: {
-    id: string;
-    title: string;
-    eventDate: Date | string;
-    startTime: string;
-    venueId: string;
-    floorNumber: string;
-  };
+export interface GuestTicketPurchase extends PurchaseTicketInput {
+  email: string;
+  name: string;
+  phone?: string;
 }
 
-export interface QRValidationResult {
+export interface TicketValidationResult {
   valid: boolean;
+  ticket?: Ticket;
+  event?: {
+    id: string;
+    name: string;
+    date: string;
+  };
   message: string;
-  ticketId?: string;
 }
