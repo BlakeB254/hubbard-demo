@@ -44,25 +44,18 @@ A comprehensive event management and ticketing platform rebuilt with **Next.js 1
 ```
 hubbard-inn-demo/
 ├── packages/
-│   ├── web-admin/          # Admin Portal (Port 3000)
+│   ├── web/                # Unified Web App (Port 3000)
 │   │   ├── src/
 │   │   │   ├── app/
-│   │   │   ├── components/admin/
-│   │   │   │   ├── atoms/
-│   │   │   │   ├── molecules/
-│   │   │   │   └── organisms/
+│   │   │   │   ├── (customer)/     # Customer pages at /
+│   │   │   │   ├── admin/          # Admin pages at /admin
+│   │   │   │   └── promoter/       # Promoter pages at /promoter
+│   │   │   ├── components/
+│   │   │   │   ├── customer/       # Customer components
+│   │   │   │   ├── admin/          # Admin components
+│   │   │   │   └── promoter/       # Promoter components
 │   │   │   └── lib/
 │   │   └── package.json
-│   ├── web-customer/       # Customer Portal (Port 3001)
-│   │   └── src/components/customer/
-│   │       ├── atoms/
-│   │       ├── molecules/
-│   │       └── organisms/
-│   ├── web-promoter/       # Promoter Portal (Port 3002)
-│   │   └── src/components/promoter/
-│   │       ├── atoms/
-│   │       ├── molecules/
-│   │       └── organisms/
 │   ├── api/                # Express Backend (Port 4000)
 │   │   ├── src/
 │   │   │   ├── db/schema/
@@ -77,6 +70,20 @@ hubbard-inn-demo/
 ├── DEPLOYMENT.md           # Deployment guide
 └── README.md
 ```
+
+### URL Routes
+
+| Route | Portal | Description |
+|-------|--------|-------------|
+| `/` | Customer | Home page with events |
+| `/events` | Customer | Browse all events |
+| `/login` | Customer | Customer login |
+| `/admin` | Admin | Admin dashboard |
+| `/admin/events` | Admin | Manage events |
+| `/admin/check-in` | Admin | QR code scanner |
+| `/promoter` | Promoter | Promoter dashboard |
+| `/promoter/links` | Promoter | Manage affiliate links |
+| `/promoter/earnings` | Promoter | View earnings |
 
 ---
 
@@ -98,9 +105,10 @@ This automated script will:
 - ✓ Start all 4 services concurrently
 
 **Services will be available at:**
-- 🎫 **Customer Portal**: http://localhost:3001
-- 👔 **Admin Portal**: http://localhost:3000
-- 📊 **Promoter Portal**: http://localhost:3002
+- 🌐 **Unified Web App**: http://localhost:3000
+  - Customer: http://localhost:3000/
+  - Admin: http://localhost:3000/admin
+  - Promoter: http://localhost:3000/promoter
 - 🔌 **API Server**: http://localhost:4000
 
 ---
@@ -359,16 +367,11 @@ See `packages/api/README.md` for full API documentation.
 
 ### Cloudflare Pages (Frontend - Static Export)
 
-This project is configured for **Next.js Static HTML Export** to deploy on Cloudflare Pages.
-
-#### Prerequisites
-
-- Cloudflare account
-- Git repository connected to Cloudflare
+This project uses a **unified Next.js app** configured for static HTML export to deploy on Cloudflare Pages. All three portals (Customer, Admin, Promoter) are served from a single deployment.
 
 #### Build Configuration
 
-Each portal uses these settings in `next.config.ts`:
+The unified app uses these settings in `next.config.ts`:
 
 ```typescript
 {
@@ -381,23 +384,13 @@ Each portal uses these settings in `next.config.ts`:
 
 #### Cloudflare Pages Setup - Values to Enter
 
-**For each portal (Admin, Customer, Promoter), create a separate Cloudflare Pages project:**
-
 | Setting | Value |
 |---------|-------|
 | **Framework preset** | `Next.js (Static HTML Export)` |
-| **Build command** | See below for each portal |
-| **Build output directory** | `packages/web-{portal}/out` |
+| **Build command** | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web build` |
+| **Build output directory** | `packages/web/out` |
 | **Root directory** | `/` (repository root) |
 | **Node.js version** | `20` (set in Environment Variables) |
-
-**Build Commands:**
-
-| Portal | Build Command |
-|--------|---------------|
-| Admin | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web-admin build` |
-| Customer | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web-customer build` |
-| Promoter | `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web-promoter build` |
 
 **Environment Variables (set in Cloudflare dashboard):**
 
@@ -412,27 +405,27 @@ Each portal uses these settings in `next.config.ts`:
 2. **Connect to Git** → Select your repository
 3. **Configure build settings:**
    - Framework preset: `Next.js (Static HTML Export)`
-   - Build command: (use table above)
-   - Build output directory: `packages/web-admin/out` (or customer/promoter)
+   - Build command: `pnpm install && pnpm --filter @hubbard-inn/shared build && pnpm --filter @hubbard-inn/web build`
+   - Build output directory: `packages/web/out`
    - Root directory: `/`
 4. **Add environment variables** (NODE_VERSION, NEXT_PUBLIC_API_URL)
 5. **Deploy** → Wait for build to complete
 6. **Set custom domain** (optional)
 
-**Configured Domains**:
-- Admin: `admin.hubbardinn.com`
-- Customer: `www.hubbardinn.com`
-- Promoter: `promoters.hubbardinn.com`
+**URL Structure** (single domain):
+- Customer Portal: `hubbardinn.com/`
+- Admin Portal: `hubbardinn.com/admin`
+- Promoter Portal: `hubbardinn.com/promoter`
 
 #### Local Build Test
 
 ```bash
-# Build all portals locally
+# Build the unified app locally
 pnpm build
 
-# Each portal outputs to packages/web-{portal}/out/
-# You can serve locally with:
-npx serve packages/web-customer/out
+# Output is in packages/web/out/
+# Serve locally with:
+npx serve packages/web/out
 ```
 
 ### Backend API
@@ -583,7 +576,7 @@ Each portal has a login page with "Use Credentials" buttons for easy testing. Al
 | Customer | `customer@demo.hubbardinn.com` | Regular user access |
 | VIP Guest | `vip@demo.hubbardinn.com` | Premium access |
 
-### Admin Portal (`/login`)
+### Admin Portal (`/admin/login`)
 
 | Role | Email | Access |
 |------|-------|--------|
@@ -591,7 +584,7 @@ Each portal has a login page with "Use Credentials" buttons for easy testing. Al
 | Manager | `manager@demo.hubbardinn.com` | Events only |
 | Check-In Staff | `checkin@demo.hubbardinn.com` | Check-in only |
 
-### Promoter Portal (`/login`)
+### Promoter Portal (`/promoter/login`)
 
 | Tier | Email | Earnings |
 |------|-------|----------|
